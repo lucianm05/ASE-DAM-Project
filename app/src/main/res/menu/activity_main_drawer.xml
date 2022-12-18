@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_all_countries"
+            android:icon="@drawable/ic_globe"
+            android:title="@string/toate_tarile" />
+
+        <item
+            android:id="@+id/nav_view_map"
+            android:icon="@drawable/ic_baseline_map_24"
+            android:title="@string/vezi_harta"/>
+    </group>
+</menu>
