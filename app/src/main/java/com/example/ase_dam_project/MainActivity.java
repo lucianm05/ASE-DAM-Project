@@ -53,6 +53,14 @@ public class MainActivity extends AppCompatActivity {
         initCountries();
     }
 
+    public Fragment getCurrentFragment() {
+        return currentFragment;
+    }
+
+    public void setCurrentFragment(Fragment currentFragment) {
+        this.currentFragment = currentFragment;
+    }
+
     private void initComponents() {
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

@@ -18,15 +18,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 public class JsonParser {
-    private static final String NAME = "name";
-    private static final String COMMON = "common";
-    private static final String CAPITAL = "capital";
-    private static final String POPULATION = "population";
-    private static final String CONTINENTS = "continents";
-    private static final String FLAGS = "flags";
-    private static final String PNG = "png";
-    private static final String CCA3 = "cca3";
-
     public static String readFromJson(AppCompatActivity activity, String fileName) {
         try {
             InputStream in = activity.getAssets().open(fileName);
@@ -42,23 +33,26 @@ public class JsonParser {
 
     public static Country getCountry(JSONObject countryObject) {
        try {
-           JSONObject nameObject = countryObject.getJSONObject(NAME);
-           String name = nameObject.getString(COMMON);
+           JSONObject nameObject = countryObject.getJSONObject(Constants.NAME);
+           String name = nameObject.getString(Constants.COMMON);
 
-           JSONArray capitalArray = countryObject.getJSONArray(CAPITAL);
+           JSONArray capitalArray = countryObject.getJSONArray(Constants.CAPITAL);
            String capitalCity = capitalArray.getString(0);
 
-           long population = countryObject.getLong(POPULATION);
+           long population = countryObject.getLong(Constants.POPULATION);
 
-           JSONArray continentsArray = countryObject.getJSONArray(CONTINENTS);
+           JSONArray continentsArray = countryObject.getJSONArray(Constants.CONTINENTS);
            String continentName = continentsArray.getString(0);
 
-           JSONObject flagsObject = countryObject.getJSONObject(FLAGS);
-           String flagUrl = flagsObject.getString(PNG);
+           JSONObject flagsObject = countryObject.getJSONObject(Constants.FLAGS);
+           String flagUrl = flagsObject.getString(Constants.PNG);
 
-           String cca3 = countryObject.getString(CCA3);
+           JSONObject cofObject = countryObject.getJSONObject(Constants.COAT_OF_ARMS);
+           String cofUrl = cofObject.getString(Constants.PNG);
 
-           return new Country(name, capitalCity, population, flagUrl, continentName, cca3);
+           String cca3 = countryObject.getString(Constants.CCA3);
+
+           return new Country(name, capitalCity, population, flagUrl, cofUrl, continentName, cca3);
        } catch(JSONException ex) {
            ex.printStackTrace();
            return null;

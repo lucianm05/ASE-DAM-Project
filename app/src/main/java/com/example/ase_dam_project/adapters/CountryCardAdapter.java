@@ -6,16 +6,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.example.ase_dam_project.MainActivity;
 import com.example.ase_dam_project.R;
 import com.example.ase_dam_project.entities.Country;
+import com.example.ase_dam_project.fragments.CountryFragment;
 import com.example.ase_dam_project.utils.Validations;
+import com.example.ase_dam_project.utils.ViewManipulation;
 
 import java.util.List;
 
@@ -43,33 +48,27 @@ public class CountryCardAdapter extends ArrayAdapter<Country> {
         Country country = countries.get(position);
 
         if(country != null) {
-            addTextViewValue(view, R.id.country_card_name, country.getName());
-            addTextViewValue(view, R.id.country_card_capital, country.getCapitalCity());
-            addTextViewValue(view, R.id.country_card_continent, country.getContinentName());
-            addTextViewValue(view, R.id.country_card_population, getContext().getString(
+            ViewManipulation.addTextViewValue(view, R.id.country_card_name, country.getName());
+            ViewManipulation.addTextViewValue(view, R.id.country_card_capital, country.getCapitalCity());
+            ViewManipulation.addTextViewValue(view, R.id.country_card_continent, country.getContinentName());
+            ViewManipulation.addTextViewValue(view, R.id.country_card_population, getContext().getString(
                     R.string.population_count,
                     country.getPopulation()));
-            addImageViewUrl(view, R.id.country_card_flag, country.getFlagUrl());
+            ViewManipulation.addImageViewUrl(view, R.id.country_card_flag, country.getFlagUrl());
+
+            Button viewMoreBtn = view.findViewById(R.id.country_card_view_more_btn);
+            viewMoreBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity activity = (MainActivity) view.getContext();
+                    activity.setCurrentFragment(CountryFragment.newInstance(country));
+                    activity.openFragment();
+                }
+            });
         }
 
         return view;
     }
 
-    private void addTextViewValue(View view, int textViewId, String value) {
-        TextView textView = view.findViewById(textViewId);
 
-        if(Validations.isStringValid(value)) {
-            textView.setText(value);
-        } else {
-            textView.setText(R.string.dash);
-        }
-    }
-
-    private void addImageViewUrl(View view, int imageViewId, String url) {
-        ImageView imageView = view.findViewById(imageViewId);
-
-        if(Validations.isStringValid(url)) {
-            Glide.with(view).load(url).into(imageView);
-        }
-    }
 }

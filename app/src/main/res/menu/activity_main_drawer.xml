@@ -7,11 +7,11 @@
         <item
             android:id="@+id/nav_all_countries"
             android:icon="@drawable/ic_globe"
-            android:title="@string/toate_tarile" />
+            android:title="@string/all_countries" />
 
         <item
             android:id="@+id/nav_view_map"
             android:icon="@drawable/ic_baseline_map_24"
-            android:title="@string/vezi_harta"/>
+            android:title="@string/view_map"/>
     </group>
 </menu>

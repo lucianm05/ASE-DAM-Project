@@ -10,8 +10,8 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
-    <string name="toate_tarile">Toate tarile</string>
-    <string name="vezi_harta">Vezi harta</string>
+    <string name="all_countries">All Countries</string>
+    <string name="view_map">View Map</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="countries_json">countries.json</string>
@@ -22,4 +22,11 @@
     <string name="country_flag">Country Flag</string>
     <string name="dash">-</string>
     <string name="population_count">Population: %1$o</string>
+    <string name="view_details">View details</string>
+    <string name="country_info">Country Info</string>
+    <string name="country_coat_of_arms">Country Coat of Arms</string>
+    <string name="located_on_the_continent">Located on the continent of %1$s</string>
+    <string name="manea_lucian_george">Manea Lucian George</string>
+    <string name="ie_an_3_1110_id">IE, An 3, 1110 ID</string>
+    <string name="capital_city">Capital City: %1$s</string>
 </resources>
