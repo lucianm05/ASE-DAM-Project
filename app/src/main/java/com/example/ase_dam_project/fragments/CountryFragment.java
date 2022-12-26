@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.ase_dam_project.R;
+import com.example.ase_dam_project.database.relations.CountryWithCapital;
+import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
 import com.example.ase_dam_project.network.AsyncTaskRunner;
 import com.example.ase_dam_project.network.Callback;
@@ -23,7 +25,9 @@ import org.json.JSONObject;
 
 public class CountryFragment extends Fragment {
     private View view;
+    private CountryWithCapital countryWithCapital;
     private Country country;
+    private Capital capital;
 
     private AsyncTaskRunner asyncTaskRunner;
 
@@ -31,10 +35,10 @@ public class CountryFragment extends Fragment {
     public CountryFragment() {}
 
 
-    public static CountryFragment newInstance(Country country) {
+    public static CountryFragment newInstance(CountryWithCapital countryWithCapital) {
         CountryFragment fragment = new CountryFragment();
         Bundle args = new Bundle();
-        args.putParcelable(Constants.COUNTRY_KEY, country);
+        args.putParcelable(Constants.COUNTRY_WITH_CAPITAL_KEY, countryWithCapital);
         fragment.setArguments(args);
         return fragment;
     }
@@ -44,7 +48,9 @@ public class CountryFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-           this.country = getArguments().getParcelable(Constants.COUNTRY_KEY);
+           this.countryWithCapital = getArguments().getParcelable(Constants.COUNTRY_WITH_CAPITAL_KEY);
+           this.country = this.countryWithCapital.getCountry();
+           this.capital = this.countryWithCapital.getCapital();
            asyncTaskRunner = new AsyncTaskRunner();
            loadCountryDescription();
         }
@@ -56,16 +62,21 @@ public class CountryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_country, container, false);
         this.view = view;
 
-        if(this.country != null) {
+        if(this.countryWithCapital != null) {
             ViewManipulation.addTextViewValue(view, R.id.country_name, this.country.getName());
             ViewManipulation.addTextViewValue(
                     view,
                     R.id.country_capital,
-                    getString(R.string.capital_city, this.country.getCapitalCity()));
+                    getString(R.string.capital_city, this.capital.getName()));
             ViewManipulation.addTextViewValue(
                     view,
                     R.id.country_continent,
                     getString(R.string.located_on_the_continent, this.country.getContinentName()));
+            ViewManipulation.addTextViewValue(
+                    view,
+                    R.id.country_population,
+                    getString(R.string.population_count, this.country.getPopulation())
+            );
             ViewManipulation.addImageViewUrl(view, R.id.country_flag, this.country.getFlagUrl());
             ViewManipulation.addImageViewUrl(view, R.id.country_cof, this.country.getCofUrl());
 

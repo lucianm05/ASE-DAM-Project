@@ -17,27 +17,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.ase_dam_project.MainActivity;
 import com.example.ase_dam_project.R;
+import com.example.ase_dam_project.database.relations.CountryWithCapital;
+import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
 import com.example.ase_dam_project.fragments.CountryFragment;
 import com.example.ase_dam_project.utils.Validations;
 import com.example.ase_dam_project.utils.ViewManipulation;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CountryCardAdapter extends ArrayAdapter<Country> {
+public class CountryCardAdapter extends ArrayAdapter<CountryWithCapital> {
     private Context context;
     private int resource;
-    private List<Country> countries;
+    private List<CountryWithCapital> countriesWithCapital;
     private LayoutInflater inflater;
 
     public CountryCardAdapter(@NonNull Context context,
                               int resource,
-                              @NonNull List<Country> objects,
+                              @NonNull List<CountryWithCapital> objects,
                               LayoutInflater inflater) {
         super(context, resource, objects);
         this.context = context;
         this.resource = resource;
-        this.countries = objects;
+        this.countriesWithCapital = objects;
         this.inflater = inflater;
     }
 
@@ -45,11 +48,13 @@ public class CountryCardAdapter extends ArrayAdapter<Country> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view = inflater.inflate(resource, parent, false);
-        Country country = countries.get(position);
+        CountryWithCapital countryWithCapital = this.countriesWithCapital.get(position);
+        Country country = countryWithCapital.getCountry();
+        Capital capital = countryWithCapital.getCapital();
 
         if(country != null) {
             ViewManipulation.addTextViewValue(view, R.id.country_card_name, country.getName());
-            ViewManipulation.addTextViewValue(view, R.id.country_card_capital, country.getCapitalCity());
+            ViewManipulation.addTextViewValue(view, R.id.country_card_capital, capital.getName());
             ViewManipulation.addTextViewValue(view, R.id.country_card_continent, country.getContinentName());
             ViewManipulation.addTextViewValue(view, R.id.country_card_population, getContext().getString(
                     R.string.population_count,
@@ -61,7 +66,7 @@ public class CountryCardAdapter extends ArrayAdapter<Country> {
                 @Override
                 public void onClick(View view) {
                     MainActivity activity = (MainActivity) view.getContext();
-                    activity.setCurrentFragment(CountryFragment.newInstance(country));
+                    activity.setCurrentFragment(CountryFragment.newInstance(countryWithCapital));
                     activity.openFragment();
                 }
             });

@@ -124,11 +124,22 @@
             />
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/country_population"
+            app:layout_constraintTop_toBottomOf="@+id/country_continent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/country_description"
+            android:text="@string/population"
+            android:textSize="20dp"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/country_description"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/country_continent"
+            app:layout_constraintTop_toBottomOf="@+id/country_population"
             app:layout_constraintEnd_toEndOf="parent"
             android:text="@string/country_info"
             android:layout_marginTop="8dp"

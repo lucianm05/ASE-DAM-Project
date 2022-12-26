@@ -1,11 +1,13 @@
 package com.example.ase_dam_project.utils;
 
+import android.content.res.AssetManager;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
 
 import org.json.JSONArray;
@@ -18,9 +20,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 public class JsonParser {
-    public static String readFromJson(AppCompatActivity activity, String fileName) {
+    public static String readFromJson(AssetManager assetManager, String fileName) {
         try {
-            InputStream in = activity.getAssets().open(fileName);
+            InputStream in = assetManager.open(fileName);
             int size = in.available();
             byte[] buffer = new byte[size];
             in.read(buffer);
@@ -36,8 +38,7 @@ public class JsonParser {
            JSONObject nameObject = countryObject.getJSONObject(Constants.NAME);
            String name = nameObject.getString(Constants.COMMON);
 
-           JSONArray capitalArray = countryObject.getJSONArray(Constants.CAPITAL);
-           String capitalCity = capitalArray.getString(0);
+           Capital capital = JsonParser.getCapital(countryObject);
 
            long population = countryObject.getLong(Constants.POPULATION);
 
@@ -52,10 +53,25 @@ public class JsonParser {
 
            String cca3 = countryObject.getString(Constants.CCA3);
 
-           return new Country(name, capitalCity, population, flagUrl, cofUrl, continentName, cca3);
+           return new Country(name, capital, population, flagUrl, cofUrl, continentName, cca3);
        } catch(JSONException ex) {
            ex.printStackTrace();
            return null;
+       } catch(NullPointerException ex) {
+           ex.printStackTrace();
+           return null;
        }
+    }
+
+    public static Capital getCapital(JSONObject countryObject) {
+        try {
+            JSONArray capitalArray = countryObject.getJSONArray(Constants.CAPITAL);
+            String capitalName = capitalArray.getString(0);
+
+            return new Capital(capitalName);
+        } catch(JSONException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 }

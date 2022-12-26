@@ -3,25 +3,47 @@ package com.example.ase_dam_project.entities;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Country implements Parcelable {
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
+
+import com.example.ase_dam_project.database.DatabaseManager;
+
+@Entity(tableName = DatabaseManager.COUNTRIES,
+        indices = {@Index(value={"name"}, unique = true)},
+        foreignKeys = {@ForeignKey(entity = Capital.class, parentColumns = "id", childColumns = "capitalId")} )
+public class Country implements Parcelable, Comparable<Country> {
+    @PrimaryKey(autoGenerate = true)
+    private long id;
+    @ColumnInfo
     private String name;
-    private String capitalCity;
+    @ColumnInfo
     private long population;
+    @ColumnInfo
     private String flagUrl;
+    @ColumnInfo
     private String cofUrl;
+    @ColumnInfo
     private String continentName;
+    @ColumnInfo
     private String cca3;
+    @ColumnInfo
+    private long capitalId;
+    @Ignore
     private String description;
+    @Ignore
+    private Capital capital;
 
     public Country(String name,
-                   String capitalCity,
                    long population,
                    String flagUrl,
                    String cofUrl,
                    String continentName,
                    String cca3) {
         this.name = name;
-        this.capitalCity = capitalCity;
         this.population = population;
         this.flagUrl = flagUrl;
         this.cofUrl = cofUrl;
@@ -29,14 +51,40 @@ public class Country implements Parcelable {
         this.cca3 = cca3;
     }
 
+    @Ignore
+    public Country(String name,
+                   Capital capital,
+                   long population,
+                   String flagUrl,
+                   String cofUrl,
+                   String continentName,
+                   String cca3) {
+        this.name = name;
+        this.capital = capital;
+        this.population = population;
+        this.flagUrl = flagUrl;
+        this.cofUrl = cofUrl;
+        this.continentName = continentName;
+        this.cca3 = cca3;
+    }
+
+    @Ignore
     public Country(Parcel parcel) {
         this.name = parcel.readString();
-        this.capitalCity = parcel.readString();
+        this.capital = (Capital) parcel.readParcelable(Capital.class.getClassLoader());
         this.population = parcel.readLong();
         this.flagUrl = parcel.readString();
         this.cofUrl = parcel.readString();
         this.continentName = parcel.readString();
         this.cca3 = parcel.readString();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -47,12 +95,12 @@ public class Country implements Parcelable {
         this.name = name;
     }
 
-    public String getCapitalCity() {
-        return capitalCity;
+    public Capital getCapital() {
+        return capital;
     }
 
-    public void setCapitalCity(String capitalCity) {
-        this.capitalCity = capitalCity;
+    public void setCapital(Capital capital) {
+        this.capital = capital;
     }
 
     public long getPopulation() {
@@ -103,6 +151,14 @@ public class Country implements Parcelable {
         this.description = description;
     }
 
+    public long getCapitalId() {
+        return capitalId;
+    }
+
+    public void setCapitalId(long capitalId) {
+        this.capitalId = capitalId;
+    }
+
     public static Creator<Country> CREATOR = new Creator<Country>() {
         @Override
         public Country createFromParcel(Parcel parcel) {
@@ -121,11 +177,17 @@ public class Country implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
         parcel.writeString(name);
-        parcel.writeString(capitalCity);
+        parcel.writeParcelable(capital, flags);
         parcel.writeLong(population);
         parcel.writeString(flagUrl);
         parcel.writeString(cofUrl);
         parcel.writeString(continentName);
         parcel.writeString(cca3);
+        parcel.writeLong(capitalId);
+    }
+
+    @Override
+    public int compareTo(Country country) {
+        return this.getName().compareTo(country.getName());
     }
 }

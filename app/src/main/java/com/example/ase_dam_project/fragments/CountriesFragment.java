@@ -12,6 +12,7 @@ import android.widget.ListView;
 
 import com.example.ase_dam_project.R;
 import com.example.ase_dam_project.adapters.CountryCardAdapter;
+import com.example.ase_dam_project.database.relations.CountryWithCapital;
 import com.example.ase_dam_project.entities.Country;
 import com.example.ase_dam_project.utils.Constants;
 
@@ -19,16 +20,16 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class CountriesFragment extends Fragment {
-    private ArrayList<Country> countries;
+    private ArrayList<CountryWithCapital> countriesWithCapital;
 
     private ListView lvCountries;
 
     public CountriesFragment() {}
 
-    public static CountriesFragment newInstance(ArrayList<Country> countries) {
+    public static CountriesFragment newInstance(ArrayList<CountryWithCapital> countries) {
         CountriesFragment fragment = new CountriesFragment();
         Bundle args = new Bundle();
-        args.putParcelableArrayList(Constants.COUNTRIES_KEY, countries);
+        args.putParcelableArrayList(Constants.COUNTRIES_WITH_CAPITAL_KEY, countries);
         fragment.setArguments(args);
         return fragment;
     }
@@ -37,7 +38,7 @@ public class CountriesFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            this.countries = getArguments().getParcelableArrayList(Constants.COUNTRIES_KEY);
+            this.countriesWithCapital = getArguments().getParcelableArrayList(Constants.COUNTRIES_WITH_CAPITAL_KEY);
         }
     }
 
@@ -57,7 +58,7 @@ public class CountriesFragment extends Fragment {
             CountryCardAdapter adapter = new CountryCardAdapter(
                     getContext().getApplicationContext(),
                     R.layout.country_card,
-                    this.countries,
+                    this.countriesWithCapital,
                     getLayoutInflater()
                     );
             lvCountries.setAdapter(adapter);
