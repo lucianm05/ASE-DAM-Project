@@ -3,7 +3,7 @@ package com.example.ase_dam_project.utils;
 import com.example.ase_dam_project.entities.Country;
 
 public class Validations {
-    public static Boolean isStringValid(String input) {
+    public static Boolean isValidString(String input) {
         return input != null && !input.trim().isEmpty();
     }
 

@@ -20,6 +20,7 @@ public class Constants {
 
     public static final String COUNTRIES_KEY = "COUNTRIES_KEY";
     public static final String COUNTRY_KEY = "COUNTRY_KEY";
+    public static final String CAPITAL_KEY = "CAPITAL_KEY";
     public static final String COUNTRY_WITH_CAPITAL_KEY = "COUNTRY_WITH_CAPITAL_KEY";
     public static final String COUNTRIES_WITH_CAPITAL_KEY = "COUNTRIES_WITH_CAPITAL_KEY";
 

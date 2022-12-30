@@ -1,5 +1,6 @@
 package com.example.ase_dam_project;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -18,10 +19,16 @@ import com.example.ase_dam_project.entities.Country;
 import com.example.ase_dam_project.fragments.CountriesFragment;
 import com.example.ase_dam_project.network.AsyncTaskRunner;
 import com.example.ase_dam_project.network.Callback;
+import com.example.ase_dam_project.utils.Constants;
 import com.example.ase_dam_project.utils.JsonParser;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
@@ -52,12 +59,15 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private FloatingActionButton fabAdd;
 
     private Fragment currentFragment;
 
     private CountryService countryService;
     private CapitalService capitalService;
     private CountryWithCapitalService countryWithCapitalService;
+
+    private ActivityResultLauncher<Intent> addActivityLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         initComponents();
         configNavigation();
         this.countryWithCapitalService.getAll(getAllCountriesCallback());
+        addActivityLauncher = registerAddActivityLauncher();
     }
 
     public Fragment getCurrentFragment() {
@@ -95,6 +106,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), item.getTitle(), Toast.LENGTH_LONG).show();
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
+            }
+        });
+
+        fabAdd = findViewById(R.id.fab_add);
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), AddActivity.class);
+                addActivityLauncher.launch(intent);
             }
         });
     }
@@ -125,18 +145,59 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void runResultOnUiThread(List<CountryWithCapital> result) {
                 if(result == null) {
-                    Log.i("GET ALL RESULT", "IS NULL");
                     return;
                 }
 
-                Log.i("GET ALL RESULT", String.valueOf(result.size()));
-                for(int i = 0; i < result.size(); i++) {
-                    CountryWithCapital res = result.get(i);
-                    Log.i("RESULT " + i, "COUNTRY " + res.getCountry() == null ? " IS NULL" : " EXISTS");
-                    Log.i("RESULT " + i, "CAPITAL " + res.getCapital() == null ? " IS NULL" : " EXISTS");
+                countriesWithCapital.addAll(result);
+
+                for(int i = 0; i < countriesWithCapital.size(); i++) {
+                    Log.i("COUNTRY NAME", countriesWithCapital.get(i).getCapital().getName());
+                }
+            }
+        };
+    }
+
+    private ActivityResultLauncher<Intent> registerAddActivityLauncher() {
+        return registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                getAddActivityResultCallback()
+        );
+    }
+
+    private ActivityResultCallback<ActivityResult> getAddActivityResultCallback() {
+        return new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if(result.getResultCode() != RESULT_OK ||
+                    result.getData() == null)
+                    return;
+
+                Country country = result.getData().getParcelableExtra(Constants.COUNTRY_KEY);
+                Capital capital = result.getData().getParcelableExtra(Constants.CAPITAL_KEY);
+
+                if(country == null || capital == null) {
+                    Log.i("RESULT CALLBACK", "NULL VALUES");
+                    if(country == null) Log.i("RESULT CALLBACK", "NULL COUNTRY");
+                    if(capital == null) Log.i("RESULT CALLBACK", "NULL CAPITAL");
+                    return;
                 }
 
-                countriesWithCapital.addAll(result);
+                capitalService.insert(capital, new Callback<Capital>() {
+                    @Override
+                    public void runResultOnUiThread(Capital result) {
+                        long capitalId = result.getId();
+
+                        if(capitalId < 0) return;
+
+                        country.setCapitalId(capitalId);
+                        countryService.insert(country, new Callback<Country>() {
+                            @Override
+                            public void runResultOnUiThread(Country result) {
+
+                            }
+                        });
+                    }
+                });
             }
         };
     }

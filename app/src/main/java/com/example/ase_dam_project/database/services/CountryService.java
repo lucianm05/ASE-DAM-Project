@@ -1,7 +1,6 @@
 package com.example.ase_dam_project.database.services;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.example.ase_dam_project.database.DatabaseManager;
 import com.example.ase_dam_project.database.daos.CountryDao;
@@ -27,8 +26,8 @@ public class CountryService {
             @Override
             public Country call() {
                 if(country == null ||
-                    !Validations.isStringValid(country.getName()) ||
-                    !Validations.isStringValid(country.getContinentName()) ||
+                    !Validations.isValidString(country.getName()) ||
+                    !Validations.isValidString(country.getContinentName()) ||
                     country.getId() != 0) {
                     return null;
                 }

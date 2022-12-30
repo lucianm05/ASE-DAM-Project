@@ -25,7 +25,7 @@ public class CapitalService {
             @Override
             public Capital call() {
                 if(capital == null ||
-                    !Validations.isStringValid(capital.getName()) ||
+                    !Validations.isValidString(capital.getName()) ||
                     capital.getId() != 0) {
                     return null;
                 }

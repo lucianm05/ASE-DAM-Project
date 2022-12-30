@@ -29,4 +29,22 @@
     <string name="manea_lucian_george">Manea Lucian George</string>
     <string name="ie_an_3_1110_id">IE, An 3, 1110 ID</string>
     <string name="capital_city">Capital City: %1$s</string>
+    <string name="add_new_country">Add new country</string>
+    <string name="country_flag_url">Country Flag URL</string>
+    <string name="continent">Continent</string>
+    <string name="country_coat_of_arms_url">Country Coat of Arms URL</string>
+    <string name="cca3">CCA3</string>
+    <string name="new_country">New Country</string>
+    <string name="home">Home</string>
+    <string name="save_country">Save country</string>
+    <string name="invalid_form">Form is invalid. Make sure to fill all fields</string>
+    <string-array name="continents">
+        <item>Africa</item>
+        <item>North America</item>
+        <item>South America</item>
+        <item>Antarctica</item>
+        <item>Europe</item>
+        <item>Asia</item>
+        <item>Australia / Oceania</item>
+    </string-array>
 </resources>
