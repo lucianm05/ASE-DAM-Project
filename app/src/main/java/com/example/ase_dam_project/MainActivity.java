@@ -16,6 +16,7 @@ import com.example.ase_dam_project.database.services.CountryService;
 import com.example.ase_dam_project.database.services.CountryWithCapitalService;
 import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
+import com.example.ase_dam_project.entities.Filters;
 import com.example.ase_dam_project.fragments.CountriesFragment;
 import com.example.ase_dam_project.fragments.CountryFragment;
 import com.example.ase_dam_project.fragments.MapsFragment;
@@ -34,6 +35,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -61,7 +63,8 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<CountryWithCapital> countriesWithCapital = new ArrayList<>();
-    private int randomInt;
+    private CountryWithCapital randomCountry;
+    private Filters filters = new Filters();
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -84,11 +87,8 @@ public class MainActivity extends AppCompatActivity {
 
         initComponents();
         configNavigation();
-
-        this.countryWithCapitalService.getAll(getAllCountriesCallback());
-
-        this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        Log.i("LOCATION", fusedLocationProviderClient.toString());
+        fetchCountries();
+        getRandomCountry();
     }
 
     public ArrayList<CountryWithCapital> getCountriesWithCapital() {
@@ -101,6 +101,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void setCurrentFragment(Fragment currentFragment) {
         this.currentFragment = currentFragment;
+    }
+
+    public Filters getFilters() {
+        return filters;
+    }
+
+    public void setFilters(Filters filters) {
+        this.filters = filters;
     }
 
     private void initComponents() {
@@ -160,9 +168,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setRandomCountryFragment() {
-        CountryWithCapital countryWithCapital = countriesWithCapital.get(randomInt);
-        setCurrentFragment(CountryFragment.newInstance(countryWithCapital));
+        setCurrentFragment(CountryFragment.newInstance(randomCountry));
         openFragment();
+    }
+
+    public void fetchCountries() {
+        this.countryWithCapitalService.getAll(this.filters, getAllCountriesCallback());
+    }
+
+    private void getRandomCountry() {
+        if(randomCountry != null) {
+            setRandomCountryFragment();
+            return;
+        };
+
+        this.countryWithCapitalService.getRandomCountryWithCapital(new Callback<CountryWithCapital>() {
+            @Override
+            public void runResultOnUiThread(CountryWithCapital result) {
+                if(result == null) return;
+                randomCountry = result;
+                setRandomCountryFragment();
+            }
+        });
     }
 
     private Callback<List<CountryWithCapital>> getAllCountriesCallback() {
@@ -170,13 +197,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void runResultOnUiThread(List<CountryWithCapital> result) {
                 if(result == null) {
+                    Log.i("GET ALL CALLBACK", "RESULT IS NULL");
                     return;
                 }
 
+                Log.i("GET ALL CALLBACK", String.valueOf(result.size()));
+
+                countriesWithCapital.clear();
                 countriesWithCapital.addAll(result);
                 Random random = new Random();
-                randomInt = random.nextInt(countriesWithCapital.size());
-                setRandomCountryFragment();
+//                randomInt = random.nextInt(countriesWithCapital.size());
+//                setRandomCountryFragment();
             }
         };
     }

@@ -23,6 +23,7 @@ public class Constants {
     public static final String CAPITAL_KEY = "CAPITAL_KEY";
     public static final String COUNTRY_WITH_CAPITAL_KEY = "COUNTRY_WITH_CAPITAL_KEY";
     public static final String COUNTRIES_WITH_CAPITAL_KEY = "COUNTRIES_WITH_CAPITAL_KEY";
+    public static final String FILTERS_KEY = "FILTERS_KEY";
 
     public static final String WIKIPEDIA_SUMMARY_URL = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 }

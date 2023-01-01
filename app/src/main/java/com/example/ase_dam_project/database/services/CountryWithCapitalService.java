@@ -1,18 +1,23 @@
 package com.example.ase_dam_project.database.services;
 
 import android.content.Context;
+import android.telecom.Call;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import com.example.ase_dam_project.database.DatabaseManager;
 import com.example.ase_dam_project.database.daos.CountryWithCapitalDao;
 import com.example.ase_dam_project.database.relations.CountryWithCapital;
 import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
+import com.example.ase_dam_project.entities.Filters;
 import com.example.ase_dam_project.network.AsyncTaskRunner;
 import com.example.ase_dam_project.network.Callback;
 import com.example.ase_dam_project.utils.Validations;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 
 public class CountryWithCapitalService {
@@ -66,14 +71,56 @@ public class CountryWithCapitalService {
         asyncTaskRunner.executeAsync(insertOperation, activityThread);
     }
 
-    public void getAll(Callback<List<CountryWithCapital>> activityThread) {
+    public void getAll(@Nullable Filters filters, Callback<List<CountryWithCapital>> activityThread) {
         Callable<List<CountryWithCapital>> getAllOperation = new Callable<List<CountryWithCapital>>() {
             @Override
             public List<CountryWithCapital> call() {
-                return countryWithCapitalDao.getAll();
+                String countryName = "%" + filters.getCountryName() + "%";
+
+                return countryWithCapitalDao.getAll(countryName);
             }
         };
 
         asyncTaskRunner.executeAsync(getAllOperation, activityThread);
+    }
+
+    public void getCountryWithCapitalByName(@Nullable String countryName, Callback<CountryWithCapital> activityThread) {
+        Callable<CountryWithCapital> getOperation = new Callable<CountryWithCapital>() {
+            @Override
+            public CountryWithCapital call() throws Exception {
+                return countryWithCapitalDao.getCountryWithCapitalByName(countryName);
+            }
+        };
+
+        asyncTaskRunner.executeAsync(getOperation, activityThread);
+    }
+
+    public void count(Callback<Integer> activityThread) {
+        Callable<Integer> countOperation = new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return countryWithCapitalDao.count();
+            }
+        };
+
+        asyncTaskRunner.executeAsync(countOperation, activityThread);
+    }
+
+    public void getRandomCountryWithCapital(Callback<CountryWithCapital> activityThread) {
+        Callable<CountryWithCapital> getOperation = new Callable<CountryWithCapital>() {
+            @Override
+            public CountryWithCapital call() throws Exception {
+                int count = countryWithCapitalDao.count();
+
+                if(count <= 0) return null;
+
+                Random random = new Random();
+                int randomInt = random.nextInt(count);
+
+                return countryWithCapitalDao.getCountryWithCapital(randomInt);
+            }
+        };
+
+        asyncTaskRunner.executeAsync(getOperation, activityThread);
     }
 }

@@ -15,6 +15,9 @@ import android.view.ViewGroup;
 import com.example.ase_dam_project.MainActivity;
 import com.example.ase_dam_project.R;
 import com.example.ase_dam_project.database.relations.CountryWithCapital;
+import com.example.ase_dam_project.database.services.CountryWithCapitalService;
+import com.example.ase_dam_project.network.Callback;
+import com.example.ase_dam_project.utils.Validations;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -29,6 +32,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class MapsFragment extends Fragment {
+    private CountryWithCapitalService countryWithCapitalService = new CountryWithCapitalService(getContext());
 
     public MapsFragment() {}
 
@@ -57,18 +61,16 @@ public class MapsFragment extends Fragment {
                         if(addresses.size() > 0) {
                             String countryName = addresses.get(0).getCountryName();
 
-                            if(countryName != null) {
-                                ArrayList<CountryWithCapital> countriesWithCapital = mainActivity.getCountriesWithCapital();
+                            if(Validations.isValidString(countryName)) {
+                                countryWithCapitalService.getCountryWithCapitalByName(countryName, new Callback<CountryWithCapital>() {
+                                    @Override
+                                    public void runResultOnUiThread(CountryWithCapital result) {
+                                        if(result == null) return;
 
-                                for(int i = 0; i < countriesWithCapital.size(); i++) {
-                                    CountryWithCapital countryWithCapital = countriesWithCapital.get(i);
-
-                                    if(Objects.equals(countryWithCapital.getCountry().getName(), countryName)) {
-                                        mainActivity.setCurrentFragment(CountryFragment.newInstance(countryWithCapital));
+                                        mainActivity.setCurrentFragment(CountryFragment.newInstance(result));
                                         mainActivity.openFragment();
-                                        break;
                                     }
-                                }
+                                });
                             }
                         }
                     } catch (IOException e) {
