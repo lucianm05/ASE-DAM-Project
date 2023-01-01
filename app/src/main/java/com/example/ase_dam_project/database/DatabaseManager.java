@@ -56,13 +56,13 @@ public abstract class DatabaseManager extends RoomDatabase {
                                                 JSONObject countryJSONObject = countriesJSONArray.getJSONObject(i);
                                                 Country country = JsonParser.getCountry(countryJSONObject);
 
-                                                if(Validations.isValidCountry(country)) {
+                                                if(Validations.isValidCountry(country) && country.getCapital() != null) {
 
                                                     ContentValues capitalValues = new ContentValues();
                                                     capitalValues.put(Constants.NAME, country.getCapital().getName());
 
                                                     long capitalId = db.insert(DatabaseManager.CAPITALS,
-                                                            SQLiteDatabase.CONFLICT_ABORT,
+                                                            SQLiteDatabase.CONFLICT_IGNORE,
                                                             capitalValues);
 
                                                     if(capitalId <= 0) continue;
@@ -79,7 +79,7 @@ public abstract class DatabaseManager extends RoomDatabase {
                                                     countryValues.put(Constants.CAPITAL_ID, country.getCapitalId());
 
                                                     db.insert(DatabaseManager.COUNTRIES,
-                                                            SQLiteDatabase.CONFLICT_ABORT,
+                                                            SQLiteDatabase.CONFLICT_IGNORE,
                                                             countryValues);
 
                                                 }

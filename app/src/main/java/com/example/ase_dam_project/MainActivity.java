@@ -17,10 +17,14 @@ import com.example.ase_dam_project.database.services.CountryWithCapitalService;
 import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
 import com.example.ase_dam_project.fragments.CountriesFragment;
+import com.example.ase_dam_project.fragments.CountryFragment;
+import com.example.ase_dam_project.fragments.MapsFragment;
 import com.example.ase_dam_project.network.AsyncTaskRunner;
 import com.example.ase_dam_project.network.Callback;
 import com.example.ase_dam_project.utils.Constants;
 import com.example.ase_dam_project.utils.JsonParser;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -53,35 +57,42 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<CountryWithCapital> countriesWithCapital = new ArrayList<>();
+    private int randomInt;
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private FloatingActionButton fabAdd;
-
     private Fragment currentFragment;
 
-    private CountryService countryService;
-    private CapitalService capitalService;
     private CountryWithCapitalService countryWithCapitalService;
 
     private ActivityResultLauncher<Intent> addActivityLauncher;
+
+    private FusedLocationProviderClient fusedLocationProviderClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.countryService = new CountryService(getApplicationContext());
-        this.capitalService = new CapitalService(getApplicationContext());
         this.countryWithCapitalService = new CountryWithCapitalService(getApplicationContext());
+        this.addActivityLauncher = registerAddActivityLauncher();
 
         initComponents();
         configNavigation();
+
         this.countryWithCapitalService.getAll(getAllCountriesCallback());
-        addActivityLauncher = registerAddActivityLauncher();
+
+        this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        Log.i("LOCATION", fusedLocationProviderClient.toString());
+    }
+
+    public ArrayList<CountryWithCapital> getCountriesWithCapital() {
+        return countriesWithCapital;
     }
 
     public Fragment getCurrentFragment() {
@@ -97,15 +108,23 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if(item.getItemId() == R.id.nav_all_countries) {
-                    currentFragment = CountriesFragment.newInstance(countriesWithCapital);
+                if(item.getItemId() == R.id.nav_homepage) {
+                    setRandomCountryFragment();
                 }
 
-                openFragment();
+                if(item.getItemId() == R.id.nav_all_countries) {
+                    setCurrentFragment(CountriesFragment.newInstance(countriesWithCapital));
+                    openFragment();
+                }
+
+                if(item.getItemId() == R.id.nav_view_map) {
+                    setCurrentFragment(MapsFragment.newInstance());
+                    openFragment();
+                }
 
                 Toast.makeText(getApplicationContext(), item.getTitle(), Toast.LENGTH_LONG).show();
                 drawerLayout.closeDrawer(GravityCompat.START);
-                return true;
+                return false;
             }
         });
 
@@ -140,6 +159,12 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    public void setRandomCountryFragment() {
+        CountryWithCapital countryWithCapital = countriesWithCapital.get(randomInt);
+        setCurrentFragment(CountryFragment.newInstance(countryWithCapital));
+        openFragment();
+    }
+
     private Callback<List<CountryWithCapital>> getAllCountriesCallback() {
         return new Callback<List<CountryWithCapital>>() {
             @Override
@@ -149,10 +174,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 countriesWithCapital.addAll(result);
-
-                for(int i = 0; i < countriesWithCapital.size(); i++) {
-                    Log.i("COUNTRY NAME", countriesWithCapital.get(i).getCapital().getName());
-                }
+                Random random = new Random();
+                randomInt = random.nextInt(countriesWithCapital.size());
+                setRandomCountryFragment();
             }
         };
     }
@@ -176,26 +200,17 @@ public class MainActivity extends AppCompatActivity {
                 Capital capital = result.getData().getParcelableExtra(Constants.CAPITAL_KEY);
 
                 if(country == null || capital == null) {
-                    Log.i("RESULT CALLBACK", "NULL VALUES");
-                    if(country == null) Log.i("RESULT CALLBACK", "NULL COUNTRY");
-                    if(capital == null) Log.i("RESULT CALLBACK", "NULL CAPITAL");
                     return;
                 }
 
-                capitalService.insert(capital, new Callback<Capital>() {
+                countryWithCapitalService.insert(country, capital, new Callback<CountryWithCapital>() {
                     @Override
-                    public void runResultOnUiThread(Capital result) {
-                        long capitalId = result.getId();
+                    public void runResultOnUiThread(CountryWithCapital result) {
+                        if(result == null) {
+                            return;
+                        }
 
-                        if(capitalId < 0) return;
-
-                        country.setCapitalId(capitalId);
-                        countryService.insert(country, new Callback<Country>() {
-                            @Override
-                            public void runResultOnUiThread(Country result) {
-
-                            }
-                        });
+                        countriesWithCapital.add(result);
                     }
                 });
             }

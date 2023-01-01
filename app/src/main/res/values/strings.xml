@@ -38,6 +38,7 @@
     <string name="home">Home</string>
     <string name="save_country">Save country</string>
     <string name="invalid_form">Form is invalid. Make sure to fill all fields</string>
+    <string name="country_of_the_day">Country of the day</string>
     <string-array name="continents">
         <item>Africa</item>
         <item>North America</item>

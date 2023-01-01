@@ -16,6 +16,12 @@ import java.util.List;
 
 @Dao
 public interface CountryWithCapitalDao {
+    @Insert
+    long insertCountry(Country country);
+
+    @Insert
+    long insertCapital(Capital capital);
+
     @Transaction
     @Query("SELECT * FROM " + DatabaseManager.COUNTRIES + " ORDER BY NAME")
     List<CountryWithCapital> getAll();

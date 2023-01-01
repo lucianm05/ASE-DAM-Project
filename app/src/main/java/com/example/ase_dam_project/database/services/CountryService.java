@@ -26,8 +26,7 @@ public class CountryService {
             @Override
             public Country call() {
                 if(country == null ||
-                    !Validations.isValidString(country.getName()) ||
-                    !Validations.isValidString(country.getContinentName()) ||
+                    !Validations.isValidCountry(country) ||
                     country.getId() != 0) {
                     return null;
                 }

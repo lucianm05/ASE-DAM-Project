@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.ase_dam_project.database.relations.CountryWithCapital;
 import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
 import com.example.ase_dam_project.utils.Constants;
