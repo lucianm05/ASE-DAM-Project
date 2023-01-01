@@ -48,4 +48,6 @@
         <item>Asia</item>
         <item>Australia / Oceania</item>
     </string-array>
+    <string name="chart_legend_template">%1$s - %2$d</string>
+    <string name="view_continents_data">View continents data</string>
 </resources>

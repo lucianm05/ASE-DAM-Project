@@ -17,6 +17,7 @@ import com.example.ase_dam_project.network.Callback;
 import com.example.ase_dam_project.utils.Validations;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
@@ -118,6 +119,17 @@ public class CountryWithCapitalService {
                 int randomInt = random.nextInt(count);
 
                 return countryWithCapitalDao.getCountryWithCapital(randomInt);
+            }
+        };
+
+        asyncTaskRunner.executeAsync(getOperation, activityThread);
+    }
+
+    public void getContinentsCount(Callback<Map<String, Integer>> activityThread) {
+        Callable<Map<String, Integer>> getOperation = new Callable<Map<String, Integer>>() {
+            @Override
+            public Map<String, Integer> call() throws Exception {
+                return countryWithCapitalDao.getContinentsCount();
             }
         };
 

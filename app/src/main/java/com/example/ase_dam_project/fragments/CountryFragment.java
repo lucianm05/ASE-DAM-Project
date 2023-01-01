@@ -8,8 +8,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.ase_dam_project.MainActivity;
 import com.example.ase_dam_project.R;
 import com.example.ase_dam_project.database.relations.CountryWithCapital;
 import com.example.ase_dam_project.entities.Capital;
@@ -28,12 +30,11 @@ public class CountryFragment extends Fragment {
     private CountryWithCapital countryWithCapital;
     private Country country;
     private Capital capital;
+    private MainActivity mainActivity;
 
     private AsyncTaskRunner asyncTaskRunner;
 
-
     public CountryFragment() {}
-
 
     public static CountryFragment newInstance(CountryWithCapital countryWithCapital) {
         CountryFragment fragment = new CountryFragment();
@@ -51,7 +52,8 @@ public class CountryFragment extends Fragment {
            this.countryWithCapital = getArguments().getParcelable(Constants.COUNTRY_WITH_CAPITAL_KEY);
            this.country = this.countryWithCapital.getCountry();
            this.capital = this.countryWithCapital.getCapital();
-           asyncTaskRunner = new AsyncTaskRunner();
+           this.asyncTaskRunner = new AsyncTaskRunner();
+           this.mainActivity = (MainActivity) getContext();
            loadCountryDescription();
         }
     }
@@ -63,6 +65,8 @@ public class CountryFragment extends Fragment {
         this.view = view;
 
         if(this.countryWithCapital != null) {
+            if(mainActivity != null) mainActivity.setCurrentCountry(this.countryWithCapital);
+
             ViewManipulation.addTextViewValue(view, R.id.country_name, this.country.getName());
             ViewManipulation.addTextViewValue(
                     view,
@@ -79,7 +83,6 @@ public class CountryFragment extends Fragment {
             );
             ViewManipulation.addImageViewUrl(view, R.id.country_flag, this.country.getFlagUrl());
             ViewManipulation.addImageViewUrl(view, R.id.country_cof, this.country.getCofUrl());
-
         }
 
         return view;

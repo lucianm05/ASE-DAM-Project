@@ -2,19 +2,18 @@ package com.example.ase_dam_project.database.daos;
 
 import androidx.annotation.Nullable;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.MapInfo;
 import androidx.room.Query;
 import androidx.room.Transaction;
-import androidx.room.Update;
 
 import com.example.ase_dam_project.database.DatabaseManager;
 import com.example.ase_dam_project.database.relations.CountryWithCapital;
 import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
-import com.example.ase_dam_project.entities.Filters;
 
 import java.util.List;
+import java.util.Map;
 
 @Dao
 public interface CountryWithCapitalDao {
@@ -42,4 +41,9 @@ public interface CountryWithCapitalDao {
     @Transaction
     @Query("SELECT COUNT(*) FROM " + DatabaseManager.COUNTRIES)
     int count();
+
+    @Transaction
+    @MapInfo(keyColumn = "continentName", valueColumn = "count")
+    @Query("SELECT continentName, COUNT(*) AS count FROM " + DatabaseManager.COUNTRIES + " GROUP BY CONTINENTNAME")
+    Map<String, Integer> getContinentsCount();
 }

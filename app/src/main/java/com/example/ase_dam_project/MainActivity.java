@@ -3,16 +3,12 @@ package com.example.ase_dam_project;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Menu;
 import android.widget.Toast;
 
-import com.example.ase_dam_project.database.DatabaseManager;
-import com.example.ase_dam_project.database.daos.CountryWithCapitalDao;
 import com.example.ase_dam_project.database.relations.CountryWithCapital;
-import com.example.ase_dam_project.database.services.CapitalService;
-import com.example.ase_dam_project.database.services.CountryService;
 import com.example.ase_dam_project.database.services.CountryWithCapitalService;
 import com.example.ase_dam_project.entities.Capital;
 import com.example.ase_dam_project.entities.Country;
@@ -20,14 +16,10 @@ import com.example.ase_dam_project.entities.Filters;
 import com.example.ase_dam_project.fragments.CountriesFragment;
 import com.example.ase_dam_project.fragments.CountryFragment;
 import com.example.ase_dam_project.fragments.MapsFragment;
-import com.example.ase_dam_project.network.AsyncTaskRunner;
 import com.example.ase_dam_project.network.Callback;
 import com.example.ase_dam_project.utils.Constants;
-import com.example.ase_dam_project.utils.JsonParser;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.activity.result.ActivityResult;
@@ -35,45 +27,33 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.ase_dam_project.databinding.ActivityMainBinding;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOError;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<CountryWithCapital> countriesWithCapital = new ArrayList<>();
+    private Map<String, Integer> continentsCount;
+    private CountryWithCapital currentCountry;
     private CountryWithCapital randomCountry;
     private Filters filters = new Filters();
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
-    private FloatingActionButton fabAdd;
     private Fragment currentFragment;
 
     private CountryWithCapitalService countryWithCapitalService;
 
     private ActivityResultLauncher<Intent> addActivityLauncher;
+    private ActivityResultLauncher<Intent> chartActivityLauncher;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
@@ -84,11 +64,46 @@ public class MainActivity extends AppCompatActivity {
 
         this.countryWithCapitalService = new CountryWithCapitalService(getApplicationContext());
         this.addActivityLauncher = registerAddActivityLauncher();
+        this.chartActivityLauncher = registerChartActivityLauncher();
 
         initComponents();
         configNavigation();
         fetchCountries();
         getRandomCountry();
+        this.countryWithCapitalService.getContinentsCount(getContinentCountCallback());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(currentFragment.getClass().equals(CountryFragment.class)) {
+            setCountriesFragment();
+            return;
+        }
+
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.menu_new_country) {
+            Intent intent = new Intent(getApplicationContext(), AddActivity.class);
+            addActivityLauncher.launch(intent);
+        }
+
+        if(item.getItemId() == R.id.menu_continents_count) {
+            Intent intent = new Intent(getApplicationContext(), ChartActivity.class);
+            intent.putExtra(Constants.CONTINENTS_COUNT_KEY, (Serializable) continentsCount);
+            chartActivityLauncher.launch(intent);
+        }
+
+        return false;
     }
 
     public ArrayList<CountryWithCapital> getCountriesWithCapital() {
@@ -111,6 +126,19 @@ public class MainActivity extends AppCompatActivity {
         this.filters = filters;
     }
 
+    public CountryWithCapital getCurrentCountry() {
+        return currentCountry;
+    }
+
+    public void setCurrentCountry(CountryWithCapital currentCountry) {
+        this.currentCountry = currentCountry;
+    }
+
+    private void setCountriesFragment() {
+        setCurrentFragment(CountriesFragment.newInstance(countriesWithCapital));
+        openFragment();
+    }
+
     private void initComponents() {
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -121,8 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(item.getItemId() == R.id.nav_all_countries) {
-                    setCurrentFragment(CountriesFragment.newInstance(countriesWithCapital));
-                    openFragment();
+                    setCountriesFragment();
                 }
 
                 if(item.getItemId() == R.id.nav_view_map) {
@@ -130,18 +157,9 @@ public class MainActivity extends AppCompatActivity {
                     openFragment();
                 }
 
-                Toast.makeText(getApplicationContext(), item.getTitle(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), item.getTitle(), Toast.LENGTH_LONG).show();
                 drawerLayout.closeDrawer(GravityCompat.START);
                 return false;
-            }
-        });
-
-        fabAdd = findViewById(R.id.fab_add);
-        fabAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), AddActivity.class);
-                addActivityLauncher.launch(intent);
             }
         });
     }
@@ -205,9 +223,6 @@ public class MainActivity extends AppCompatActivity {
 
                 countriesWithCapital.clear();
                 countriesWithCapital.addAll(result);
-                Random random = new Random();
-//                randomInt = random.nextInt(countriesWithCapital.size());
-//                setRandomCountryFragment();
             }
         };
     }
@@ -216,6 +231,18 @@ public class MainActivity extends AppCompatActivity {
         return registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 getAddActivityResultCallback()
+        );
+    }
+
+    private ActivityResultLauncher<Intent> registerChartActivityLauncher() {
+        return registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+
+                    }
+                }
         );
     }
 
@@ -247,4 +274,16 @@ public class MainActivity extends AppCompatActivity {
             }
         };
     }
+
+    private Callback<Map<String, Integer>> getContinentCountCallback() {
+        return new Callback<Map<String, Integer>>() {
+            @Override
+            public void runResultOnUiThread(Map<String, Integer> result) {
+                if(result == null) return;
+
+                continentsCount = result;
+            }
+        };
+    }
+
 }
